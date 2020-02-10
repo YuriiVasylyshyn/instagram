@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import 'package:instagram/components/Timeline/index.dart';
 
 class MyApp extends StatelessWidget {
@@ -13,34 +13,32 @@ class MyApp extends StatelessWidget {
 }
 
 class ProfileScreen extends StatefulWidget {
-  ProfileScreen({
-    this.id,
-  });
+  ProfileScreen({this.id});
   final id;
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  var users = [];
+  var user = [];
+  String id2;
   void initState() {
     super.initState();
-    getUrl();
+    print('[ID] ${widget.id}');
+    getUrl(
+        'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts/${widget.id}');
   }
 
-  void getUrl() async {
-    String url = 'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts/:id';
+  void getUrl(String url) async {
     var response = await http.get(url);
-    if (response.statusCode == 200) {
-      var jsonResponse = convert.jsonDecode(response.body);
-      setState(
-        () {
-          users = jsonResponse;
-        },
-      );
-    } else {
-      print('Request failed with status: ${response.statusCode}.');
-    }
+    print(response.statusCode);
+    var jsonResponse = convert.jsonDecode(response.body);
+    print('[jsonResponse] ${jsonResponse}');
+    setState(
+      () {
+        user = jsonResponse;
+      },
+    );
   }
 
   @override
@@ -64,7 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       body: ListView(
-        children: users
+        children: user
             .map(
               (item) => Timeline(
                 nickname: item['userName'],

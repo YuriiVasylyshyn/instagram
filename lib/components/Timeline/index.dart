@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:instagram/screens/ProfileScreen/index.dart';
 
 class Timeline extends StatefulWidget {
@@ -27,7 +26,6 @@ class Timeline extends StatefulWidget {
 
 class _TimelineState extends State<Timeline> {
   bool putLike = false;
-  String input = '';
 
   void likeFunc(data) {
     setState(
@@ -40,17 +38,6 @@ class _TimelineState extends State<Timeline> {
   void initState() {
     super.initState();
   }
-
-  // void makePutRequest() async {
-  //   String url = 'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts:id';
-  //   Map<String, String> headers = {"Content-type": "application/json"};
-  //   String json = '{"comments": "$input"}';
-  //   Response response = await put(url, headers: headers, body: json);
-  //   int statusCode = response.statusCode;
-  //   print('StatusCode: $statusCode');
-  //   String body = response.body;
-
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -148,17 +135,7 @@ class _TimelineState extends State<Timeline> {
             border: InputBorder.none,
             hintText: 'Put a comment',
           ),
-          onChanged: (String str) {
-            setState(
-              () {
-                input = str;
-                makePutRequest();
-              },
-            );
-          },
-        ),
-        Text(
-          '${widget.id}',
+          onChanged: null,
         ),
       ],
     );
