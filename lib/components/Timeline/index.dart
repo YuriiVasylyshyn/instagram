@@ -9,7 +9,6 @@ class Timeline extends StatefulWidget {
     this.image,
     this.avatar,
     this.description,
-    this.likes,
     this.comments,
     this.id,
   });
@@ -17,7 +16,6 @@ class Timeline extends StatefulWidget {
   final image;
   final avatar;
   final description;
-  final likes;
   final comments;
   final id;
   @override
@@ -119,23 +117,9 @@ class _TimelineState extends State<Timeline> {
                   widget.description,
                   textAlign: TextAlign.left,
                 ),
-                Text(
-                  'Likes ${widget.likes}',
-                ),
               ],
             ),
           ),
-        ),
-        Text(
-          widget.comments ?? 'default comment',
-        ),
-        TextField(
-          textAlign: TextAlign.justify,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: 'Put a comment',
-          ),
-          onChanged: null,
         ),
       ],
     );

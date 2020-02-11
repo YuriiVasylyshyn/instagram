@@ -21,19 +21,23 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   var user = [];
-  String id2;
+  var id2;
   void initState() {
     super.initState();
-    print('[ID] ${widget.id}');
-    getUrl(
-        'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts/${widget.id}');
+    setState(
+      () {
+        id2 = widget.id;
+      },
+    );
+    print('[ID] $id2');
+    getUrl('https://5b27755162e42b0014915662.mockapi.io/api/v1/posts/$id2');
   }
 
-  void getUrl(String url) async {
+  getUrl(String url) async {
     var response = await http.get(url);
     print(response.statusCode);
     var jsonResponse = convert.jsonDecode(response.body);
-    print('[jsonResponse] ${jsonResponse}');
+    print('[jsonResponse] $jsonResponse');
     setState(
       () {
         user = jsonResponse;
@@ -69,7 +73,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 avatar: item['avatar'],
                 image: item['imageUrl'],
                 description: item['description'],
-                likes: item['likes'],
                 comments: item['comments'],
               ),
             )

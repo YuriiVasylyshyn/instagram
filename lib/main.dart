@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -21,8 +22,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({this.image});
-  final image;
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -30,10 +29,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var users = [];
   File _image;
-  var userName;
-  var description;
-
-  var a = {'imageUrl': '', 'userName': '', 'description': ''};
+  var now = DateTime.now();
+  String description;
+  String userName;
 
   void initState() {
     super.initState();
@@ -44,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var image = await ImagePicker.pickImage(
       source: ImageSource.gallery,
     );
+    print('object');
     setState(
       () {
         _image = image;
@@ -51,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void getUrl(String url) async {
+  getUrl(String url) async {
     var response = await http.get(url);
     var jsonResponse = convert.jsonDecode(response.body);
     setState(
@@ -61,13 +60,19 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _makePostRequest() async {
+  makePostRequest() async {
     String url = 'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts';
-    String json =
-        '{imageUrl: "$_image", userName: "$userName", description: "$description"}';
+    List<int> imageBytes = _image.readAsBytesSync();
+    String base64Image = base64Encode(imageBytes);
+    var json = {
+      'createdAt': '$now',
+      'imageUrl': base64Image,
+      'description': description,
+      'userName': userName,
+    };
     Response response = await post(url, body: json);
     print('[Json] $json');
-    print("[Status code] ${response.statusCode}");
+    print('[Status code] ${response.statusCode}');
     print('[Body] ${response.body}');
   }
 
@@ -79,21 +84,27 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text('Make a post'),
           children: <Widget>[
             SimpleDialogOption(
-              child: TextField(
-                textAlign: TextAlign.justify,
-                decoration: InputDecoration(
-                  hintText: 'Enter a username',
-                ),
-                onEditingComplete: userName,
-              ),
-            ),
-            SimpleDialogOption(
-              child: TextField(
-                textAlign: TextAlign.justify,
-                decoration: InputDecoration(
-                  hintText: 'Enter a description',
-                ),
-                onChanged: description,
+              child: Column(
+                children: <Widget>[
+                  TextField(
+                    textAlign: TextAlign.justify,
+                    decoration: InputDecoration(
+                      hintText: 'Enter a username',
+                    ),
+                    onChanged: (String str) {
+                      userName = str;
+                    },
+                  ),
+                  TextField(
+                    textAlign: TextAlign.justify,
+                    decoration: InputDecoration(
+                      hintText: 'Enter a description',
+                    ),
+                    onChanged: (String str) {
+                      description = str;
+                    },
+                  ),
+                ],
               ),
             ),
             SimpleDialogOption(
@@ -110,7 +121,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   RaisedButton(
-                    onPressed: _makePostRequest,
+                    onPressed: () {
+                      Navigator.pop(context);
+                      makePostRequest();
+                    },
                     child: Text('OK'),
                   ),
                 ],
@@ -133,9 +147,8 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icon(
                 Icons.photo_camera,
               ),
-              onPressed: () {
-                _showSimpleDialog();
-              },
+              onPressed: _showSimpleDialog,
+              // _makeDeleteRequest,
             ),
             Text(
               'Instagram',
@@ -158,7 +171,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 avatar: item['avatar'],
                 image: item['imageUrl'],
                 description: item['description'],
-                likes: item['likes'],
                 comments: item['comments'],
                 id: item['id'],
               ),
