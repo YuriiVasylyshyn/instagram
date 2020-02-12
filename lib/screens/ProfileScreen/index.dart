@@ -1,7 +1,9 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
-import 'package:instagram/components/Timeline/index.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -20,7 +22,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  var user = [];
+  var user;
   var id2;
   void initState() {
     super.initState();
@@ -29,7 +31,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         id2 = widget.id;
       },
     );
-    print('[ID] $id2');
     getUrl('https://5b27755162e42b0014915662.mockapi.io/api/v1/posts/$id2');
   }
 
@@ -47,6 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Uint8List bytes = base64Decode(user['imageUrl'].split(',').last);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -66,17 +68,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       body: ListView(
-        children: user
-            .map(
-              (item) => Timeline(
-                nickname: item['userName'],
-                avatar: item['avatar'],
-                image: item['imageUrl'],
-                description: item['description'],
-                comments: item['comments'],
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Row(
+              children: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(
+                          id: widget.id,
+                        ),
+                      ),
+                    );
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: Image.network(
+                      user['avatar'],
+                      height: 50,
+                      width: 50,
+                    ),
+                  ),
+                ),
+                Text(
+                  user['userName'],
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(
+              top: 5,
+              bottom: 5,
+            ),
+            child: Image.memory(
+              bytes,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  Icons.favorite_border,
+                ),
               ),
-            )
-            .toList(),
+              Icon(
+                Icons.comment,
+              ),
+              Icon(
+                Icons.send,
+              ),
+              Icon(
+                Icons.bookmark_border,
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: EdgeInsets.all(5),
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    user['description'],
+                    textAlign: TextAlign.left,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,12 +1,9 @@
-import 'dart:convert';
+import 'dart:convert' as convert;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'dart:convert' as convert;
-import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:instagram/components/Timeline/index.dart';
+import 'package:instagram/services/HttpRequests/index.dart';
 
 void main() => runApp(MyApp());
 
@@ -28,31 +25,20 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var users = [];
-  File _image;
+
   var now = DateTime.now();
+  File _image;
   String description;
   String userName;
 
   void initState() {
     super.initState();
-    getUrl('https://5b27755162e42b0014915662.mockapi.io/api/v1/posts');
+    getUrl();
   }
 
-  Future getImage() async {
-    var image = await ImagePicker.pickImage(
-      source: ImageSource.gallery,
-    );
-    print('object');
-    setState(
-      () {
-        _image = image;
-      },
-    );
-  }
-
-  getUrl(String url) async {
-    var response = await http.get(url);
-    var jsonResponse = convert.jsonDecode(response.body);
+  getUrl() async {
+    var jsonResponse = await makeGetRequest(
+        'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts');
     setState(
       () {
         users = jsonResponse;
@@ -60,20 +46,27 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  makePostRequest() async {
-    String url = 'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts';
+  getImage() async {
+    var pickedImage = await getImageRequest();
+    setState(
+      () {
+        _image = pickedImage;
+      },
+    );
+  }
+
+  postRequest() async {
     List<int> imageBytes = _image.readAsBytesSync();
-    String base64Image = base64Encode(imageBytes);
+    String base64Image = convert.base64Encode(imageBytes);
     var json = {
       'createdAt': '$now',
       'imageUrl': base64Image,
       'description': description,
       'userName': userName,
     };
-    Response response = await post(url, body: json);
-    print('[Json] $json');
-    print('[Status code] ${response.statusCode}');
-    print('[Body] ${response.body}');
+    await makePostRequest(
+        'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts', json);
+    getUrl();
   }
 
   void _showSimpleDialog() {
@@ -123,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   RaisedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      makePostRequest();
+                      postRequest();
                     },
                     child: Text('OK'),
                   ),
@@ -148,7 +141,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 Icons.photo_camera,
               ),
               onPressed: _showSimpleDialog,
-              // _makeDeleteRequest,
             ),
             Text(
               'Instagram',
@@ -166,14 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListView(
         children: users
             .map(
-              (item) => Timeline(
-                nickname: item['userName'],
-                avatar: item['avatar'],
-                image: item['imageUrl'],
-                description: item['description'],
-                comments: item['comments'],
-                id: item['id'],
-              ),
+              (item) => Timeline(item: item),
             )
             .toList(),
       ),

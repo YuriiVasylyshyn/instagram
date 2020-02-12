@@ -1,33 +1,35 @@
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
+import 'package:image_picker/image_picker.dart';
 
-var users = [];
+var now = DateTime.now();
 
-getUrl(String url) async {
+makeGetRequest(String url) async {
   var response = await http.get(url);
-  var jsonResponse = convert.jsonDecode(response.body);
-  users = jsonResponse;
+  if (response.statusCode != 200) {
+    print('Error ${response.statusCode}');
+  } else {
+    return convert.jsonDecode(response.body);
+  }
 }
 
-// makePostRequest() async {
-//   String url = 'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts';
-//   List<int> imageBytes = _image.readAsBytesSync();
-//   String base64Image = base64Encode(imageBytes);
-//   var json = {
-//     "createdAt": '$now',
-//     "imageUrl": base64Image,
-//     "description": description,
-//     "userName": userName,
-//   };
-//   Response response = await post(url, body: json);
-//   print('[Json] $json');
-//   print("[Status code] ${response.statusCode}");
-//   print('[Body] ${response.body}');
-// }
+makeDeleteRequest(String url) async {
+  http.Response response = await http.delete(url);
+  print('[Status code] ${response.statusCode}');
+}
 
-// makeDeleteRequest() async {
-//   String url = 'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts/103';
-//   Response response = await delete(url);
-//   print("[Status code] ${response.statusCode}");
-// }
+Future getImageRequest() async {
+  var image = await ImagePicker.pickImage(
+    source: ImageSource.gallery,
+  );
+  return image;
+}
+
+makePostRequest(String url, body) async {
+  http.Response response = await http.post(url, body: body);
+  if (response.statusCode == 201) {
+    return convert.jsonDecode(response.body);
+  } else {
+    print('ERROR ${response.statusCode}');
+  }
+}

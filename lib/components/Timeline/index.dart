@@ -4,42 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:instagram/screens/ProfileScreen/index.dart';
 
 class Timeline extends StatefulWidget {
-  Timeline({
-    this.nickname,
-    this.image,
-    this.avatar,
-    this.description,
-    this.comments,
-    this.id,
-  });
-  final nickname;
-  final image;
-  final avatar;
-  final description;
-  final comments;
-  final id;
+  Timeline({this.item});
+  final item;
   @override
   _TimelineState createState() => _TimelineState();
 }
 
 class _TimelineState extends State<Timeline> {
-  bool putLike = false;
-
-  void likeFunc(data) {
-    setState(
-      () {
-        putLike = data;
-      },
-    );
-  }
-
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
-    Uint8List bytes = base64Decode(widget.image.split(',').last);
+    Uint8List bytes = base64Decode(widget.item['imageUrl'].split(',').last);
     return Column(
       children: <Widget>[
         Padding(
@@ -52,7 +26,7 @@ class _TimelineState extends State<Timeline> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ProfileScreen(
-                        id: widget.id,
+                        id: widget.item['id'],
                       ),
                     ),
                   );
@@ -60,14 +34,14 @@ class _TimelineState extends State<Timeline> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: Image.network(
-                    widget.avatar,
+                    widget.item['avatar'],
                     height: 50,
                     width: 50,
                   ),
                 ),
               ),
               Text(
-                widget.nickname,
+                widget.item['userName'],
                 style: TextStyle(
                   fontSize: 15,
                 ),
@@ -88,13 +62,8 @@ class _TimelineState extends State<Timeline> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            IconButton(
-              onPressed: () {
-                likeFunc(putLike ? false : true);
-              },
-              icon: Icon(
-                putLike ? Icons.favorite : Icons.favorite_border,
-              ),
+            Icon(
+              Icons.favorite_border,
             ),
             Icon(
               Icons.comment,
@@ -114,7 +83,7 @@ class _TimelineState extends State<Timeline> {
             child: Column(
               children: <Widget>[
                 Text(
-                  widget.description,
+                  widget.item['description'],
                   textAlign: TextAlign.left,
                 ),
               ],
