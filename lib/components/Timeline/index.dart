@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:instagram/screens/ProfileScreen/index.dart';
 
 class Timeline extends StatefulWidget {
   Timeline({this.item});
@@ -11,26 +10,29 @@ class Timeline extends StatefulWidget {
 }
 
 class _TimelineState extends State<Timeline> {
+  var convertedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    Uint8List bytes = base64Decode(widget.item['imageUrl'].split(',').last);
+    setState(
+      () {
+        convertedImage = bytes;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Uint8List bytes = base64Decode(widget.item['imageUrl'].split(',').last);
     return Column(
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(top: 10),
           child: Row(
             children: <Widget>[
-              FlatButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfileScreen(
-                        id: widget.item['id'],
-                      ),
-                    ),
-                  );
-                },
+              Padding(
+                padding: EdgeInsets.all(5),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: Image.network(
@@ -55,7 +57,7 @@ class _TimelineState extends State<Timeline> {
             bottom: 5,
           ),
           child: Image.memory(
-            bytes,
+            convertedImage,
             fit: BoxFit.cover,
           ),
         ),

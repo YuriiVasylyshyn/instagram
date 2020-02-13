@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:instagram/components/Timeline/index.dart';
 import 'package:instagram/services/HttpRequests/index.dart';
+import 'package:instagram/services/ImageOperations/index.dart';
 
 void main() => runApp(MyApp());
 
@@ -56,17 +57,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   postRequest() async {
-    List<int> imageBytes = _image.readAsBytesSync();
-    String base64Image = convert.base64Encode(imageBytes);
-    var json = {
-      'createdAt': '$now',
-      'imageUrl': base64Image,
-      'description': description,
-      'userName': userName,
-    };
-    await makePostRequest(
-        'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts', json);
-    getUrl();
+    try {
+      List<int> imageBytes = _image.readAsBytesSync();
+      String base64Image = convert.base64Encode(imageBytes);
+      var json = {
+        'createdAt': '$now',
+        'imageUrl': base64Image,
+        'description': description,
+        'userName': userName,
+      };
+      await makePostRequest(
+          'https://5b27755162e42b0014915662.mockapi.io/api/v1/posts', json);
+      getUrl();
+    } catch (e) {
+      print(e);
+    }
   }
 
   void _showSimpleDialog() {

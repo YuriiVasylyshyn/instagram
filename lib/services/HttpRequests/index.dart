@@ -1,6 +1,5 @@
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 
 var now = DateTime.now();
 
@@ -16,13 +15,6 @@ makeGetRequest(String url) async {
 makeDeleteRequest(String url) async {
   http.Response response = await http.delete(url);
   print('[Status code] ${response.statusCode}');
-}
-
-Future getImageRequest() async {
-  var image = await ImagePicker.pickImage(
-    source: ImageSource.gallery,
-  );
-  return image;
 }
 
 makePostRequest(String url, body) async {
